@@ -29,14 +29,19 @@ import com.zhihu.matisse.internal.entity.Album;
 import com.zhihu.matisse.internal.loader.AlbumMediaLoader;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AlbumMediaCollection implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int LOADER_ID = 2;
     private static final String ARGS_ALBUM = "args_album";
     private static final String ARGS_ENABLE_CAPTURE = "args_enable_capture";
+    private static final AtomicInteger LOADER_ID_GENERATOR = new AtomicInteger(2);
+    private final int loaderId = LOADER_ID_GENERATOR.incrementAndGet();
     private WeakReference<Context> mContext;
     private LoaderManager mLoaderManager;
     private AlbumMediaCallbacks mCallbacks;
+
+    public AlbumMediaCollection() {
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -82,7 +87,7 @@ public class AlbumMediaCollection implements LoaderManager.LoaderCallbacks<Curso
 
     public void onDestroy() {
         if (mLoaderManager != null) {
-            mLoaderManager.destroyLoader(LOADER_ID);
+            mLoaderManager.destroyLoader(loaderId);
         }
         mCallbacks = null;
     }
@@ -95,7 +100,7 @@ public class AlbumMediaCollection implements LoaderManager.LoaderCallbacks<Curso
         Bundle args = new Bundle();
         args.putParcelable(ARGS_ALBUM, target);
         args.putBoolean(ARGS_ENABLE_CAPTURE, enableCapture);
-        mLoaderManager.initLoader(LOADER_ID, args, this);
+        mLoaderManager.initLoader(loaderId, args, this);
     }
 
     public interface AlbumMediaCallbacks {
